@@ -180,13 +180,21 @@
     }
 
     // Required fields
-    const required = ['name', 'email', 'startDate', 'startTime', 'endDate', 'endTime', 'absenceType', 'reason'];
+    const required = ['name', 'email', 'startDate', 'startTime', 'endDate', 'endTime', 'absenceType', 'frontlineEntry', 'reason'];
     for (const field of required) {
       const el = form[field];
-      if (!el || !el.value) {
-        el && el.focus();
-        setStatus('Please complete all required fields.', 'error');
-        return;
+      if (field === 'frontlineEntry') {
+        if (!el || !el.checked) {
+          el && el.focus();
+          setStatus('Please confirm you have filled out your Frontline entry.', 'error');
+          return;
+        }
+      } else {
+        if (!el || !el.value) {
+          el && el.focus();
+          setStatus('Please complete all required fields.', 'error');
+          return;
+        }
       }
     }
 

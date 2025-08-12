@@ -12,7 +12,6 @@
   <body>
     <main class="container" role="main">
       <h1 class="title">Behavior Intervention Team Request for Time Off</h1>
-      <p class="subtitle">Screen reader support enabled.</p>
       <p class="description">
         If you need to be out for any amount of time fill out this form. An email will be sent to Rob and Cristal. If you are going to be out less than 24 hours before your start time you must text Rob and Cristal so the schedule can be adjusted.
       </p>
@@ -26,7 +25,7 @@
         </div>
 
         <section aria-labelledby="section-time-off">
-          <h2 id="section-time-off">Section 1 of 2 — Time Off</h2>
+          <h2 id="section-time-off">Time Off</h2>
 
           <div class="field">
             <label for="name">Name<span aria-hidden="true"> *</span></label>
@@ -52,7 +51,7 @@
         </section>
 
         <section aria-labelledby="section-end">
-          <h2 id="section-end">Section 2 of 2 — End</h2>
+          <h2 id="section-end">End</h2>
 
           <div class="field">
             <label for="description">Description (optional)</label>
@@ -88,6 +87,13 @@
               <option value="FMLA">FMLA</option>
               <option value="Flex">Flex</option>
             </select>
+          </div>
+
+          <div class="field">
+            <div class="checkbox-field">
+              <input id="frontlineEntry" name="frontlineEntry" type="checkbox" required aria-required="true" />
+              <label for="frontlineEntry">I have filled out my Frontline entry for this absence<span aria-hidden="true"> *</span></label>
+            </div>
           </div>
 
           <div class="field">

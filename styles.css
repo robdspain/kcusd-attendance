@@ -1,28 +1,32 @@
 :root {
-  --bg: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  --bg: #000000;
   --panel: rgba(255, 255, 255, 0.98);
-  --text: #0f172a;
+  --text-outside: #ffffff;
+  --text-form: #0f172a;
   --text-light: #1e293b;
-  --muted: #64748b;
+  --muted-outside: #e5e7eb;
+  --muted-form: #64748b;
   --primary: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
   --primary-hover: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
   --border: rgba(148, 163, 184, 0.3);
   --border-focus: rgba(59, 130, 246, 0.5);
   --success: #059669;
   --error: #dc2626;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 2px 0 rgba(255, 255, 255, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(255, 255, 255, 0.1), 0 2px 4px -1px rgba(255, 255, 255, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(255, 255, 255, 0.1), 0 4px 6px -2px rgba(255, 255, 255, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(255, 255, 255, 0.1), 0 10px 10px -5px rgba(255, 255, 255, 0.04);
 }
 
-/* Force light mode - override any dark mode preferences */
+/* Force dark background with white form - override any preferences */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+    --bg: #000000 !important;
     --panel: rgba(255, 255, 255, 0.98) !important;
-    --text: #0f172a !important;
-    --muted: #64748b !important;
+    --text-outside: #ffffff !important;
+    --text-form: #0f172a !important;
+    --muted-outside: #e5e7eb !important;
+    --muted-form: #64748b !important;
     --border: rgba(148, 163, 184, 0.3) !important;
   }
 }
@@ -42,7 +46,7 @@ body {
   font-size: 16px;
   line-height: 1.6;
   font-weight: 400;
-  color: var(--text) !important;
+  color: var(--text-outside) !important;
   background: var(--bg) !important;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -81,14 +85,14 @@ body {
   font-size: 1.75rem; 
   font-weight: 700; 
   margin: 0 0 8px; 
-  color: var(--text);
+  color: var(--text-outside);
   letter-spacing: -0.02em;
   text-align: center;
   line-height: 1.2;
 }
 
 .subtitle { 
-  color: var(--muted); 
+  color: var(--muted-outside); 
   margin: 0 0 20px; 
   font-size: 1rem;
   font-weight: 500;
@@ -97,21 +101,24 @@ body {
 }
 
 .description, .note { 
-  color: var(--muted); 
+  color: var(--muted-outside); 
   margin: 0 0 16px; 
-  font-size: 0.95rem;
+  font-size: 1rem;
   line-height: 1.6;
   text-align: center;
+}
+
+@media (min-width: 480px) {
+  .description, .note { 
+    font-size: 1.05rem;
+  }
 }
 
 /* Desktop typography improvements */
 @media (min-width: 768px) {
   .title { 
     font-size: 2.25rem;
-    background: linear-gradient(135deg, var(--text) 0%, var(--text-light) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--text-outside);
     text-align: left;
   }
   
@@ -178,9 +185,9 @@ section {
 }
 
 section h2 { 
-  font-size: 1.25rem; 
+  font-size: 1.375rem; 
   margin: 0 0 16px; 
-  color: var(--text); 
+  color: var(--text-form); 
   font-weight: 700; 
   letter-spacing: -0.01em;
   text-align: center;
@@ -193,7 +200,7 @@ section h2 {
   }
   
   section h2 { 
-    font-size: 1.375rem; 
+    font-size: 1.5rem; 
     margin: 0 0 20px; 
     letter-spacing: -0.015em;
     display: flex;
@@ -238,23 +245,85 @@ section h2 {
 
 .field label { 
   font-weight: 600; 
-  color: var(--text); 
-  font-size: 0.95rem;
+  color: var(--text-form); 
+  font-size: 1rem;
   letter-spacing: 0.01em;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .hint { 
-  color: var(--muted); 
+  color: var(--muted-form); 
   margin: 0; 
-  font-size: 0.875rem; 
+  font-size: 0.95rem; 
   line-height: 1.5;
+}
+
+/* Checkbox field styling */
+.checkbox-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 12px;
+  margin: 8px 0;
+}
+
+.checkbox-field input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  margin: 2px 0 0 0;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+.checkbox-field label {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-form);
+  cursor: pointer;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+@media (max-width: 767px) {
+  .checkbox-field {
+    padding: 18px 16px;
+    gap: 16px;
+  }
+  
+  .checkbox-field input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+  }
+  
+  .checkbox-field label {
+    font-size: 1.05rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .field label {
+    font-size: 0.95rem;
+  }
+  
+  .hint {
+    font-size: 0.9rem;
+  }
+  
+  .checkbox-field label {
+    font-size: 0.95rem;
+  }
 }
 
 input[type="text"], input[type="email"], input[type="date"], input[type="time"], select, textarea {
   width: 100%;
   padding: 16px;
-  color: var(--text) !important;
+  color: var(--text-form) !important;
   background: var(--panel) !important;
   border: 2px solid var(--border) !important;
   border-radius: 12px;
@@ -270,7 +339,7 @@ input[type="text"], input[type="email"], input[type="date"], input[type="time"],
 }
 
 input::placeholder, textarea::placeholder { 
-  color: var(--muted); 
+  color: var(--muted-form); 
   opacity: 0.8; 
   font-weight: 400;
 }
@@ -297,6 +366,61 @@ input:focus, select:focus, textarea:focus {
 input:hover, select:hover, textarea:hover {
   border-color: var(--border-focus);
   box-shadow: var(--shadow-md);
+}
+
+/* Specific styling for date and time inputs */
+input[type="date"], input[type="time"] {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Date picker icon styling */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'%3e%3cpath fill-rule='evenodd' d='M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z' clip-rule='evenodd' /%3e%3c/svg%3e");
+  background-size: 20px;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 20px;
+  height: 20px;
+  margin-left: 8px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+input[type="time"]::-webkit-calendar-picker-indicator {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'%3e%3cpath fill-rule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z' clip-rule='evenodd' /%3e%3c/svg%3e");
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 767px) {
+  input[type="date"], input[type="time"] {
+    font-size: 16px; /* Prevent zoom on iOS */
+    min-height: 56px; /* Larger touch target on mobile */
+    padding: 18px 16px;
+  }
+  
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    width: 24px;
+    height: 24px;
+    background-size: 24px;
+    margin-left: 12px;
+  }
+}
+
+/* Desktop specific adjustments */
+@media (min-width: 768px) {
+  input[type="date"], input[type="time"] {
+    min-height: 44px;
+    padding: 14px 16px;
+  }
 }
 
 .actions {
@@ -374,7 +498,7 @@ button:hover::before {
     width: auto;
     padding: 16px 32px;
     border-radius: 16px;
-    font-size: 0.875rem;
+    font-size: 0.95rem;
     text-transform: uppercase;
     letter-spacing: 0.025em;
     min-height: auto;
@@ -398,9 +522,9 @@ button:disabled::before {
 }
 
 .status {
-  color: var(--muted);
+  color: var(--muted-outside);
   min-height: 1.2em;
-  font-size: 0.9rem;
+  font-size: 1rem;
   margin-left: auto;
   font-weight: 500;
   display: flex;
@@ -428,14 +552,14 @@ button:disabled::before {
   padding: 16px;
   border-radius: 12px;
   border: 1px solid rgba(5, 150, 105, 0.2);
-  font-size: 0.95rem;
+  font-size: 1rem;
   box-shadow: var(--shadow-sm);
 }
 
 @media (max-width: 767px) {
   .status.success {
     padding: 20px 16px;
-    font-size: 0.9rem;
+    font-size: 1rem;
     margin-top: 16px;
   }
 }

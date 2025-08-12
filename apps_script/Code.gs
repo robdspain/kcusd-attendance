@@ -61,12 +61,13 @@ function doPost(e) {
     const endDate = (form.endDate || '').trim();
     const endTime = (form.endTime || '').trim();
     const absenceType = (form.absenceType || '').trim();
+    const frontlineEntry = form.frontlineEntry === 'on' ? 'Yes' : 'No';
     const reason = (form.reason || '').trim();
     const description = (form.description || '').trim();
     const formName = (form.formName || 'Time Off Form').trim();
     const formSecret = (form.formSecret || '').trim();
 
-    if (!name || !email || !startDate || !startTime || !endDate || !endTime || !absenceType || !reason) {
+    if (!name || !email || !startDate || !startTime || !endDate || !endTime || !absenceType || form.frontlineEntry !== 'on' || !reason) {
       return json({ success: false, message: 'Missing required fields' }, headers);
     }
 
@@ -99,6 +100,7 @@ function doPost(e) {
       endDate,
       endTime,
       absenceType,
+      frontlineEntry,
       reason,
       description,
       formSecret,
@@ -114,6 +116,7 @@ function doPost(e) {
       `Start: ${startDate} ${startTime}`,
       `End: ${endDate} ${endTime}`,
       `Absence Type: ${absenceType}`,
+      `Frontline Entry Completed: ${frontlineEntry}`,
       `Reason: ${reason}`,
       description ? `Description: ${description}` : null,
       '',
@@ -160,7 +163,7 @@ function getOrCreateSheet(sheetId, sheetName) {
   if (!sheet) {
     sheet = ss.insertSheet(sheetName);
     sheet.appendRow([
-      'Timestamp', 'Name', 'Email', 'Start Date', 'Start Time', 'End Date', 'End Time', 'Absence Type', 'Reason', 'Description', 'Form Secret'
+      'Timestamp', 'Name', 'Email', 'Start Date', 'Start Time', 'End Date', 'End Time', 'Absence Type', 'Frontline Entry', 'Reason', 'Description', 'Form Secret'
     ]);
   }
   return sheet;
