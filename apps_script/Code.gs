@@ -7,16 +7,16 @@
 
 // ======== CONFIGURE ========
 const CONFIG = {
-  sheetId: 'PUT_YOUR_SHEET_ID_HERE',
+  sheetId: '1WbaeyvFCGdRp67BXxkDYE0JmkJ8QWWmbdAAqv7jxpPI',
   sheetName: 'Responses',
   emailRecipients: [
-    'rob@example.com',
-    'cristal@example.com',
-    'recipient3@example.com',
-    'recipient4@example.com',
+    'spain-r@kcusd.com',
+    'lopez-cr@kcusd.com',
+    'muniz-d@kcusd.com',
+    'evaristo-a@kcusd.com',
   ],
   // Google Drive folder for storing uploaded documents
-  driveFolderId: 'PUT_YOUR_DRIVE_FOLDER_ID_HERE', // Create a folder and put its ID here
+  driveFolderId: '1pdc32jn7MVw4D0dMgxptM--Sht7q_f13', // Time Off Request Documents folder
   driveFolderName: 'Time Off Request Documents', // Name for the folder if it needs to be created
   // Restrict uploads to these MIME types and max size (bytes)
   maxUploadBytes: 10 * 1024 * 1024, // 10MB
