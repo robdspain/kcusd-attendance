@@ -15,6 +15,9 @@ const CONFIG = {
     'recipient3@example.com',
     'recipient4@example.com',
   ],
+  // Google Drive folder for storing uploaded documents
+  driveFolderId: 'PUT_YOUR_DRIVE_FOLDER_ID_HERE', // Create a folder and put its ID here
+  driveFolderName: 'Time Off Request Documents', // Name for the folder if it needs to be created
   // Restrict uploads to these MIME types and max size (bytes)
   maxUploadBytes: 10 * 1024 * 1024, // 10MB
   allowedMimeTypes: [
@@ -72,21 +75,34 @@ function doPost(e) {
     }
 
     // Optional file upload via HTML form uses e.files if multipart/form-data
+    let fileLink = '';
+    let fileName = '';
     let attachmentBlob = null;
-    if (e && e.parameters && e.parameters['doctorNote'] && e.parameters['doctorNote'].length) {
-      // If sent as base64 use a different approach. For native form uploads, e.files is populated.
-    }
     if (e && e.files && e.files['doctorNote']) {
       const file = e.files['doctorNote'];
       const sizeBytes = (file && file.getBytes) ? file.getBytes().length : 0;
       const contentType = (file && file.getContentType) ? file.getContentType() : '';
+      fileName = (file && file.getName) ? file.getName() : 'uploaded_file';
+      
       if (sizeBytes > CONFIG.maxUploadBytes) {
         return json({ success: false, message: 'File too large' }, headers);
       }
       if (CONFIG.allowedMimeTypes.indexOf(contentType) === -1) {
         return json({ success: false, message: 'Unsupported file type' }, headers);
       }
+      
+      // Keep the file for email attachment
       attachmentBlob = file;
+      
+      // Save file to Google Drive and get shareable link
+      try {
+        const driveFile = saveFileToDrive(file, name, timestamp);
+        fileLink = driveFile.getUrl();
+        fileName = driveFile.getName();
+      } catch (error) {
+        console.error('Error saving file to Drive:', error);
+        return json({ success: false, message: 'Failed to save file to Drive' }, headers);
+      }
     }
 
     const sheet = getOrCreateSheet(CONFIG.sheetId, CONFIG.sheetName);
@@ -103,6 +119,7 @@ function doPost(e) {
       frontlineEntry,
       reason,
       description,
+      fileLink || '',
       formSecret,
     ];
     sheet.appendRow(row);
@@ -119,6 +136,7 @@ function doPost(e) {
       `Frontline Entry Completed: ${frontlineEntry}`,
       `Reason: ${reason}`,
       description ? `Description: ${description}` : null,
+      fileLink ? `Document (attached & stored): ${fileLink}` : null,
       '',
       `Logged at: ${Utilities.formatDate(timestamp, Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss')}`,
     ].filter(Boolean).join('\n');
@@ -163,7 +181,7 @@ function getOrCreateSheet(sheetId, sheetName) {
   if (!sheet) {
     sheet = ss.insertSheet(sheetName);
     sheet.appendRow([
-      'Timestamp', 'Name', 'Email', 'Start Date', 'Start Time', 'End Date', 'End Time', 'Absence Type', 'Frontline Entry', 'Reason', 'Description', 'Form Secret'
+      'Timestamp', 'Name', 'Email', 'Start Date', 'Start Time', 'End Date', 'End Time', 'Absence Type', 'Frontline Entry', 'Reason', 'Description', 'Document Link', 'Form Secret'
     ]);
   }
   return sheet;
@@ -172,6 +190,86 @@ function getOrCreateSheet(sheetId, sheetName) {
 // Helper to include HTML partials if needed
 function include(filename) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
+}
+
+// Function to save uploaded file to Google Drive and return shareable link
+function saveFileToDrive(fileBlob, submitterName, timestamp) {
+  try {
+    // Get or create the Drive folder
+    let folder = getOrCreateDriveFolder();
+    
+    // Create a meaningful filename
+    const originalName = fileBlob.getName() || 'document';
+    const extension = originalName.substring(originalName.lastIndexOf('.')) || '';
+    const baseName = originalName.substring(0, originalName.lastIndexOf('.')) || originalName;
+    const dateStr = Utilities.formatDate(timestamp, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+    const fileName = `${dateStr}_${submitterName}_${baseName}${extension}`;
+    
+    // Create the file in the Drive folder
+    const driveFile = folder.createFile(fileBlob.setName(fileName));
+    
+    // Set file permissions - make it viewable by the email recipients
+    driveFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    // Share with specific email recipients
+    const recipients = CONFIG.emailRecipients || [];
+    recipients.forEach(function(email) {
+      if (email && email.trim()) {
+        try {
+          driveFile.addEditor(email.trim());
+        } catch (err) {
+          console.log(`Could not add editor ${email}: ${err}`);
+          // Continue if we can't add a specific user
+        }
+      }
+    });
+    
+    return driveFile;
+  } catch (error) {
+    console.error('Error in saveFileToDrive:', error);
+    throw error;
+  }
+}
+
+// Function to get or create the Google Drive folder for storing documents
+function getOrCreateDriveFolder() {
+  try {
+    // First try to get folder by ID if provided
+    if (CONFIG.driveFolderId && CONFIG.driveFolderId !== 'PUT_YOUR_DRIVE_FOLDER_ID_HERE') {
+      try {
+        return DriveApp.getFolderById(CONFIG.driveFolderId);
+      } catch (err) {
+        console.log('Could not find folder by ID, will search by name or create new one');
+      }
+    }
+    
+    // Search for existing folder by name
+    const folders = DriveApp.getFoldersByName(CONFIG.driveFolderName);
+    if (folders.hasNext()) {
+      return folders.next();
+    }
+    
+    // Create new folder if none exists
+    const newFolder = DriveApp.createFolder(CONFIG.driveFolderName);
+    console.log(`Created new Drive folder: ${CONFIG.driveFolderName} (ID: ${newFolder.getId()})`);
+    
+    // Share the folder with the email recipients
+    const recipients = CONFIG.emailRecipients || [];
+    recipients.forEach(function(email) {
+      if (email && email.trim()) {
+        try {
+          newFolder.addEditor(email.trim());
+        } catch (err) {
+          console.log(`Could not add folder editor ${email}: ${err}`);
+        }
+      }
+    });
+    
+    return newFolder;
+  } catch (error) {
+    console.error('Error in getOrCreateDriveFolder:', error);
+    throw error;
+  }
 }
 
 
