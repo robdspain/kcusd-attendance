@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Behavior Intervention Team - Time Off Request</title>
+    <style>
+      :root { --bg:#0b0f13; --panel:#121821; --text:#eaf0f6; --muted:#a9b3c1; --primary:#5aa6ff; --primary-strong:#2d8bff; --border:#223041; --success:#34d399; --error:#ef4444; }
+      *{box-sizing:border-box} html,body{height:100%} body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,'Noto Sans';color:var(--text);background:var(--bg)}
+      .container{max-width:840px;margin:24px auto;padding:16px}
+      .title{font-size:1.5rem;margin:0 0 4px} .subtitle{color:var(--muted);margin:0 0 12px} .description,.note{color:var(--muted);margin:0 0 8px}
+      form{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0));border:1px solid var(--border);border-radius:14px;padding:16px}
+      section{margin:10px 0 18px} section h2{font-size:1.05rem;margin:0 0 10px}
+      .grid{display:grid;grid-template-columns:1fr;gap:10px} @media (min-width:640px){.grid{grid-template-columns:1fr 1fr}}
+      .field{display:flex;flex-direction:column;gap:6px} .field label{font-weight:600}
+      .hint{color:var(--muted);margin:0;font-size:.9rem}
+      input[type=text],input[type=email],input[type=date],input[type=time],select,textarea{width:100%;padding:10px 12px;color:var(--text);background:var(--panel);border:1px solid var(--border);border-radius:10px;outline:none}
+      input::placeholder,textarea::placeholder{color:#7e8aa0} textarea{resize:vertical}
+      input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(90,166,255,.2)}
+      .actions{display:flex;align-items:center;gap:12px;margin-top:12px}
+      button{background:linear-gradient(180deg,var(--primary),var(--primary-strong));color:#fff;border:none;border-radius:10px;padding:10px 16px;font-weight:600;cursor:pointer}
+      .status{color:var(--muted);min-height:1.2em}
+      .visually-hidden{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
+    </style>
+  </head>
+  <body>
+    <main class="container" role="main">
+      <h1 class="title">Behavior Intervention Team Request for Time Off</h1>
+      <p class="subtitle">Screen reader support enabled.</p>
+      <p class="description">If you need to be out for any amount of time fill out this form. An email will be sent to Rob and Cristal. If you are going to be out less than 24 hours before your start time you must text Rob and Cristal so the schedule can be adjusted.</p>
+      <p class="note">This form collects respondent email addresses.</p>
+
+      <form method="post" enctype="multipart/form-data" action="<?= actionUrl ?>">
+        <input type="hidden" name="formName" value="<?= formName ?>" />
+        <input type="hidden" name="formSecret" value="<?= formSecret ?>" />
+        <input type="hidden" name="__embedded" value="1" />
+
+        <div class="visually-hidden" aria-hidden="true">
+          <label for="website">Website</label>
+          <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <section aria-labelledby="section-time-off">
+          <h2 id="section-time-off">Section 1 of 2 — Time Off</h2>
+          <div class="field">
+            <label for="name">Name<span aria-hidden="true"> *</span></label>
+            <input id="name" name="name" type="text" required autocomplete="name" />
+          </div>
+          <div class="field">
+            <label for="email">Email<span aria-hidden="true"> *</span></label>
+            <input id="email" name="email" type="email" required autocomplete="email" />
+          </div>
+          <div class="grid">
+            <div class="field">
+              <label for="startDate">Start Date<span aria-hidden="true"> *</span></label>
+              <input id="startDate" name="startDate" type="date" required />
+            </div>
+            <div class="field">
+              <label for="startTime">Start Time<span aria-hidden="true"> *</span></label>
+              <input id="startTime" name="startTime" type="time" required />
+            </div>
+          </div>
+        </section>
+
+        <section aria-labelledby="section-end">
+          <h2 id="section-end">Section 2 of 2 — End</h2>
+          <div class="field">
+            <label for="description">Description (optional)</label>
+            <textarea id="description" name="description" rows="3" placeholder="Any additional context"></textarea>
+          </div>
+          <div class="grid">
+            <div class="field">
+              <label for="endDate">End Date<span aria-hidden="true"> *</span></label>
+              <input id="endDate" name="endDate" type="date" required />
+            </div>
+            <div class="field">
+              <label for="endTime">End Time<span aria-hidden="true"> *</span></label>
+              <input id="endTime" name="endTime" type="time" required />
+            </div>
+          </div>
+          <div class="field">
+            <label for="absenceType">Absence Type<span aria-hidden="true"> *</span></label>
+            <select id="absenceType" name="absenceType" required>
+              <option value="" disabled selected>Select one</option>
+              <option value="Sick Leave (for yourself)">Sick Leave (for yourself)</option>
+              <option value="Personal Necessity (for someone else)">Personal Necessity (for someone else)</option>
+              <option value="Bereavement">Bereavement</option>
+              <option value="Jury Duty">Jury Duty</option>
+              <option value="Industrial Accident">Industrial Accident</option>
+              <option value="Vacation">Vacation</option>
+              <option value="School Business">School Business</option>
+              <option value="Association Leave">Association Leave</option>
+              <option value="PN - Urgent Personal Business">PN - Urgent Personal Business</option>
+              <option value="Personal Day without Pay">Personal Day without Pay</option>
+              <option value="Personal Urgent">Personal Urgent</option>
+              <option value="FMLA">FMLA</option>
+              <option value="Flex">Flex</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="reason">Reason<span aria-hidden="true"> *</span></label>
+            <textarea id="reason" name="reason" rows="4" required placeholder="Brief reason"></textarea>
+          </div>
+          <div class="field">
+            <label for="doctorNote">If you have a doctor's note, you may upload it here</label>
+            <input id="doctorNote" name="doctorNote" type="file" accept=".pdf,.png,.jpg,.jpeg,.heic,.heif" />
+            <p class="hint">Max 10 MB. Accepted: PDF, PNG, JPG, HEIC.</p>
+          </div>
+        </section>
+
+        <div class="actions">
+          <button type="submit">Submit</button>
+          <div class="status" aria-live="polite">&nbsp;</div>
+        </div>
+      </form>
+    </main>
+  </body>
+  </html>
+
+

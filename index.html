@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Behavior Intervention Team - Time Off Request</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container" role="main">
+      <h1 class="title">Behavior Intervention Team Request for Time Off</h1>
+      <p class="subtitle">Screen reader support enabled.</p>
+      <p class="description">
+        If you need to be out for any amount of time fill out this form. An email will be sent to Rob and Cristal. If you are going to be out less than 24 hours before your start time you must text Rob and Cristal so the schedule can be adjusted.
+      </p>
+      <p class="note">This form collects respondent email addresses.</p>
+
+      <form id="timeOffForm" method="POST" enctype="multipart/form-data" novalidate>
+        <input type="hidden" name="formName" value="Behavior Intervention Team - Time Off" />
+        <div class="visually-hidden" aria-hidden="true">
+          <label for="website">Website</label>
+          <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <section aria-labelledby="section-time-off">
+          <h2 id="section-time-off">Section 1 of 2 — Time Off</h2>
+
+          <div class="field">
+            <label for="name">Name<span aria-hidden="true"> *</span></label>
+            <input id="name" name="name" type="text" required aria-required="true" autocomplete="name" />
+            <p class="hint" id="name-hint"></p>
+          </div>
+
+          <div class="field">
+            <label for="email">Email<span aria-hidden="true"> *</span></label>
+            <input id="email" name="email" type="email" required aria-required="true" autocomplete="email" />
+          </div>
+
+          <div class="grid">
+            <div class="field">
+              <label for="startDate">Start Date<span aria-hidden="true"> *</span></label>
+              <input id="startDate" name="startDate" type="date" required aria-required="true" />
+            </div>
+            <div class="field">
+              <label for="startTime">Start Time<span aria-hidden="true"> *</span></label>
+              <input id="startTime" name="startTime" type="time" required aria-required="true" />
+            </div>
+          </div>
+        </section>
+
+        <section aria-labelledby="section-end">
+          <h2 id="section-end">Section 2 of 2 — End</h2>
+
+          <div class="field">
+            <label for="description">Description (optional)</label>
+            <textarea id="description" name="description" rows="3" placeholder="Any additional context"></textarea>
+          </div>
+
+          <div class="grid">
+            <div class="field">
+              <label for="endDate">End Date<span aria-hidden="true"> *</span></label>
+              <input id="endDate" name="endDate" type="date" required aria-required="true" />
+            </div>
+            <div class="field">
+              <label for="endTime">End Time<span aria-hidden="true"> *</span></label>
+              <input id="endTime" name="endTime" type="time" required aria-required="true" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="absenceType">Absence Type<span aria-hidden="true"> *</span></label>
+            <select id="absenceType" name="absenceType" required aria-required="true">
+              <option value="" disabled selected>Select one</option>
+              <option value="Sick Leave (for yourself)">Sick Leave (for yourself)</option>
+              <option value="Personal Necessity (for someone else)">Personal Necessity (for someone else)</option>
+              <option value="Bereavement">Bereavement</option>
+              <option value="Jury Duty">Jury Duty</option>
+              <option value="Industrial Accident">Industrial Accident</option>
+              <option value="Vacation">Vacation</option>
+              <option value="School Business">School Business</option>
+              <option value="Association Leave">Association Leave</option>
+              <option value="PN - Urgent Personal Business">PN - Urgent Personal Business</option>
+              <option value="Personal Day without Pay">Personal Day without Pay</option>
+              <option value="Personal Urgent">Personal Urgent</option>
+              <option value="FMLA">FMLA</option>
+              <option value="Flex">Flex</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="reason">Reason<span aria-hidden="true"> *</span></label>
+            <textarea id="reason" name="reason" rows="4" required aria-required="true" placeholder="Brief reason"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="doctorNote">If you have a doctor's note, you may upload it here</label>
+            <input id="doctorNote" name="doctorNote" type="file" accept=".pdf,.png,.jpg,.jpeg,.heic,.heif" />
+            <p class="hint">Max 10 MB. Accepted: PDF, PNG, JPG, HEIC.</p>
+          </div>
+        </section>
+
+        <div class="actions">
+          <button id="submitBtn" type="submit">Submit</button>
+          <div id="status" role="status" aria-live="polite" class="status"></div>
+        </div>
+
+        <input type="hidden" id="formSecret" name="formSecret" />
+      </form>
+
+      <iframe title="hidden submission target" id="hidden_iframe" name="hidden_iframe" class="hidden-iframe" aria-hidden="true"></iframe>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+  </html>
+
+
