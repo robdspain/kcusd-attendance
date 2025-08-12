@@ -125,9 +125,13 @@ function doPost(e) {
       options.attachments = [attachmentBlob];
     }
     const recipients = (CONFIG.emailRecipients || []).map(function(r){ return (r || '').trim(); }).filter(function(r){ return r; });
-    recipients.forEach(function(recipient) {
-      try { MailApp.sendEmail(recipient, subject, body, options); } catch (err) {}
-    });
+    if (recipients.length > 0) {
+      try { 
+        MailApp.sendEmail(recipients.join(','), subject, body, options); 
+      } catch (err) {
+        console.error('Failed to send email:', err);
+      }
+    }
 
     // If submitted from Apps Script form (Sites embed), redirect to success page
     if (e && e.parameter && e.parameter.__embedded) {
