@@ -5,7 +5,12 @@
   const secretInput = document.getElementById('formSecret');
 
   // Configure this to your deployed Apps Script Web App URL
-  const APPS_SCRIPT_URL = '';
+  // Replace this with your actual Apps Script Web App URL after deployment
+  // To get this URL:
+  // 1. Deploy your Apps Script as a Web App
+  // 2. Copy the deployment URL
+  // 3. Replace the URL below
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyv3u7Q2Jo2n932rN5lJXj4Z7Whh6NoGiQaW5vj8eOGhZy4iA0xP6IcSkFJYcZUrXDUvg/exec';
 
   // 100 Quotes about leaving, being gone, or taking off
   const quotes = [

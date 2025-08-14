@@ -28,7 +28,7 @@ const CONFIG = {
 };
 
 function doGet() {
-  const tpl = HtmlService.createTemplateFromFile('same error - Exception: No HTML file named Index was found. (line 28, file "Code")Index');
+  const tpl = HtmlService.createTemplateFromFile('Index');
   tpl.actionUrl = ScriptApp.getService().getUrl();
   tpl.formName = 'Behavior Intervention Team - Time Off';
   tpl.formSecret = Utilities.getUuid();
