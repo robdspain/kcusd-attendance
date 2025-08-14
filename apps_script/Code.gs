@@ -74,6 +74,9 @@ function doPost(e) {
       return json({ success: false, message: 'Missing required fields' }, headers);
     }
 
+    const sheet = getOrCreateSheet(CONFIG.sheetId, CONFIG.sheetName);
+    const timestamp = new Date();
+
     // Optional file upload via HTML form uses e.files if multipart/form-data
     let fileLink = '';
     let fileName = '';
@@ -104,9 +107,6 @@ function doPost(e) {
         return json({ success: false, message: 'Failed to save file to Drive' }, headers);
       }
     }
-
-    const sheet = getOrCreateSheet(CONFIG.sheetId, CONFIG.sheetName);
-    const timestamp = new Date();
     const row = [
       Utilities.formatDate(timestamp, Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss'),
       name,
@@ -145,13 +145,55 @@ function doPost(e) {
     if (attachmentBlob) {
       options.attachments = [attachmentBlob];
     }
-    const recipients = (CONFIG.emailRecipients || []).map(function(r){ return (r || '').trim(); }).filter(function(r){ return r; });
+    
+    // Send emails individually for better reliability
+    const recipients = (CONFIG.emailRecipients || [])
+      .map(function(r){ return (r || '').trim(); })
+      .filter(function(r){ return r && isValidEmail(r); });
+    
+    // Filter out invalid emails and log them
+    const invalidEmails = (CONFIG.emailRecipients || [])
+      .map(function(r){ return (r || '').trim(); })
+      .filter(function(r){ return r && !isValidEmail(r); });
+    
+    if (invalidEmails.length > 0) {
+      console.warn('Invalid email addresses found in CONFIG:', invalidEmails);
+    }
+    
+    let emailErrors = [];
+    
     if (recipients.length > 0) {
-      try { 
-        MailApp.sendEmail(recipients.join(','), subject, body, options); 
-      } catch (err) {
-        console.error('Failed to send email:', err);
+      // Check email quota before sending
+      if (!checkEmailQuota()) {
+        console.error('Insufficient email quota to send to all recipients');
+        emailErrors.push('Email quota exceeded');
+      } else {
+        // Send emails individually
+        for (let i = 0; i < recipients.length; i++) {
+          const recipient = recipients[i];
+          try { 
+            MailApp.sendEmail(recipient, subject, body, options);
+            console.log(`Email sent successfully to: ${recipient}`);
+            // Small delay to avoid rate limiting
+            if (i < recipients.length - 1) {
+              Utilities.sleep(100);
+            }
+          } catch (err) {
+            console.error(`Failed to send email to ${recipient}:`, err);
+            emailErrors.push(`${recipient}: ${err.message}`);
+          }
+        }
       }
+      
+      // Log email status
+      if (emailErrors.length > 0) {
+        console.warn(`Email delivery issues: ${emailErrors.length}/${recipients.length} failed`);
+        console.warn('Failed recipients:', emailErrors);
+      } else {
+        console.log(`All emails sent successfully to ${recipients.length} recipients`);
+      }
+    } else {
+      console.warn('No valid email recipients found in CONFIG.emailRecipients');
     }
 
     // If submitted from Apps Script form (Sites embed), redirect to success page
@@ -228,6 +270,33 @@ function saveFileToDrive(fileBlob, submitterName, timestamp) {
   } catch (error) {
     console.error('Error in saveFileToDrive:', error);
     throw error;
+  }
+}
+
+// Function to validate email address format
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+// Function to check email quota (Apps Script limit: 100 emails/day for free accounts)
+function checkEmailQuota() {
+  try {
+    const today = new Date();
+    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    
+    // This is an approximation - actual quota tracking would require storing sent counts
+    const remainingQuota = MailApp.getRemainingDailyQuota();
+    console.log(`Remaining email quota: ${remainingQuota}`);
+    
+    if (remainingQuota < CONFIG.emailRecipients.length) {
+      console.warn(`Low email quota: ${remainingQuota} remaining, need ${CONFIG.emailRecipients.length}`);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error('Error checking email quota:', err);
+    return true; // Proceed if we can't check quota
   }
 }
 
