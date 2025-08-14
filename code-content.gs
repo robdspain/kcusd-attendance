@@ -334,7 +334,7 @@ function getOrCreateDriveFolder() {
 }
 
 function getHtmlContent() {
-  return \`<!doctype html>
+  return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -1266,8 +1266,8 @@ form {
     const startTime = form.startTime.value;
     const endTime = form.endTime.value;
     if (startDate && endDate && startDate === endDate && startTime && endTime) {
-      const start = new Date(\\\`\\\${startDate}T\\\${startTime}:00\\\`);
-      const end = new Date(\\\`\\\${endDate}T\\\${endTime}:00\\\`);
+      const start = new Date(\`\${startDate}T\${startTime}:00\`);
+      const end = new Date(\`\${endDate}T\${endTime}:00\`);
       if (end < start) {
         return 'End Time cannot be earlier than Start Time when dates are the same';
       }
@@ -1324,14 +1324,14 @@ form {
       // The form will redirect to success page on successful submission
       
     } catch (err) {
-      setStatus(\\\`Submission failed: \\\${err.message}\\\`, 'error');
+      setStatus(\`Submission failed: \${err.message}\`, 'error');
       submitBtn.disabled = false;
     }
   });
 })();
     </script>
   </body>
-</html>\`;
+</html>`;
 }
 
 function getSuccessHtml() {
@@ -1360,7 +1360,7 @@ function getSuccessHtml() {
   
   const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
   
-  return \`<!doctype html>
+  return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -1418,7 +1418,7 @@ function getSuccessHtml() {
       <p>You may now close this window.</p>
     </div>
   </body>
-</html>\`;
+</html>`;
 }
 
 
