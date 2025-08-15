@@ -158,13 +158,16 @@ Smart email formatting with:
 
 ```
 ├── multi-form-system.gs       # 🎯 MAIN DEPLOYMENT FILE (use this!)
-├── code-content.gs            # 📚 Original single-form version
-├── index.html                 # 📚 Original standalone form
-├── script.js                  # 📚 Original JavaScript  
-├── styles.css                 # 📚 Original CSS
-├── apps_script/               # 📚 Original Apps Script files
 ├── README.md                  # 📖 This documentation
-└── SETUP_GUIDE.md             # 📖 Detailed troubleshooting guide
+├── SETUP_GUIDE.md             # 📖 Detailed troubleshooting guide
+└── archive/                   # 📚 Legacy files (reference only)
+    ├── README.md              #     Archive documentation
+    └── legacy-files/          #     Original development files
+        ├── code-content.gs    #     Original single-form version
+        ├── index.html         #     Original standalone form
+        ├── script.js          #     Original JavaScript  
+        ├── styles.css         #     Original CSS
+        └── apps_script/       #     Original Apps Script files
 ```
 
 ## 🔄 Next Steps
