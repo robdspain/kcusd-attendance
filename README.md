@@ -1,71 +1,131 @@
-# Behavior Intervention Team — Time Off Request (Static Form + Google Apps Script)
+# Behavior Intervention Team — Time Off Request Form
 
-This is a responsive, accessible form. You can host it on GitHub Pages, or entirely in Google Apps Script for embedding into Google Sites. Submissions are sent to a Google Apps Script backend that:
+A responsive, accessible time off request form with Google Apps Script backend. Features a modern dark theme design with embedded functionality for easy deployment.
 
-- Logs all answers to a Google Sheet
-- Emails 4 recipients with the submission details
-- Optionally includes an uploaded doctor's note (PDF/PNG/JPG/HEIC)
+## ✨ Features
 
-## 1) GitHub Pages
+- **Self-contained deployment** - Single file contains everything
+- **Enhanced email delivery** - Individual email sending with validation
+- **Mobile-first responsive design** - Dark background with glassmorphic white form
+- **File upload support** - PDF, PNG, JPG, HEIC files up to 10MB
+- **Comprehensive validation** - Client and server-side validation
+- **Accessibility features** - ARIA labels, keyboard navigation
+- **100 inspirational quotes** - Random quotes displayed on successful submission
 
-- Push this folder to a GitHub repo
-- Enable GitHub Pages → Source: `main` (or `master`) → root
+## 🚀 Quick Start
 
-## 2) Google Sheet
+### Option 1: Self-Contained Apps Script (Recommended)
 
-- Create a new Google Sheet
-- Copy the Sheet ID from the URL (the long string between `/d/` and `/edit`)
+1. **Create Google Apps Script Project**:
+   - Go to [script.google.com](https://script.google.com)
+   - Create new project
 
-## 3) Apps Script Backend (Web App)
+2. **Deploy the Complete Solution**:
+   - Replace `Code.gs` content with the entire `code-content.gs` file
+   - Update the `CONFIG` object (see configuration below)
+   - Deploy as Web App
 
-- In Google Drive, New → More → Google Apps Script
-- File → New → Script, replace `Code.gs` with the contents of `apps_script/Code.gs`
-- In `CONFIG`, set:
-  - `sheetId` to your Sheet ID
-  - `sheetName` (optional, default `Responses`)
-  - `emailRecipients` to the 4 email addresses
-  - Optionally restrict `allowedOrigin` to your GitHub Pages URL
-- Save
-- Deploy → New deployment → Type: Web app
-  - Description: Time Off Form API
-  - Execute as: Me
-  - Who has access: Anyone
-  - Deploy
-- Copy the Web app URL
+3. **Embed in Google Sites**:
+   - Copy the Web App URL from deployment
+   - In Google Sites: Insert → Embed → paste URL
 
-## 4a) Frontend configuration (GitHub Pages option)
+### Option 2: GitHub Pages + Apps Script Backend
 
-- Open `script.js`
-- Set `APPS_SCRIPT_URL` to the Web app URL from above
-- Commit and push
+1. **Setup GitHub Pages**:
+   - Push this repo to GitHub
+   - Enable GitHub Pages from `main` branch
 
-## 4b) Google Sites embed (Apps Script option)
+2. **Deploy Backend**:
+   - Use `apps_script/Code.gs` for backend only
+   - Configure `APPS_SCRIPT_URL` in `script.js`
 
-- In Apps Script, open Deployments → Copy Web app URL
-- In Google Sites, Insert → Embed → paste the Web app URL
-- Publish your Site and test the form inside the site
+## ⚙️ Configuration
 
-## 5) Test
+### Required Setup
 
-- Open your GitHub Pages site
-- Submit the form (try with and without a file)
-- Confirm sheet row added and emails received
+1. **Google Sheet**:
+   - Create new Google Sheet
+   - Copy Sheet ID from URL (long string between `/d/` and `/edit`)
 
-## Security and validation
+2. **Update CONFIG in code-content.gs**:
+   ```javascript
+   const CONFIG = {
+     sheetId: 'YOUR_GOOGLE_SHEET_ID',
+     emailRecipients: [
+       'email1@domain.com',
+       'email2@domain.com',
+       // ... up to 4 recipients
+     ],
+     driveFolderId: 'YOUR_DRIVE_FOLDER_ID', // For file uploads
+   };
+   ```
 
-- Honeypot field to deter basic bots
-- Required field checks and basic date/time validation
-- File type and size checks on backend (10 MB limit)
-- Consider enabling reCAPTCHA Enterprise or challenge-based solutions if spam arises
+3. **Deploy as Web App**:
+   - Execute as: **Me**
+   - Who has access: **Anyone**
 
-## Notes
+## 🧪 Testing
 
-- If uploads fail, ensure the Web App deploy is current and `Who has access: Anyone`.
-- Apps Script cannot set custom CORS response headers via `doPost` easily; the frontend uses `mode: 'cors'`. If you restrict `allowedOrigin`, also serve this through a proxy or use HtmlService if needed.
+1. **Open your deployed form**
+2. **Fill out test submission**:
+   - Complete all required fields
+   - Optionally upload a test file
+   - Check the Frontline entry checkbox
+3. **Verify functionality**:
+   - Form submits successfully
+   - Google Sheet receives new row
+   - All email recipients receive notification
+   - File uploads to Google Drive (if included)
 
-## Fields tracked
+## 🔒 Security Features
 
-- Name, Email, Start Date/Time, End Date/Time, Absence Type, Reason, Description, optional `doctorNote` file
-- Logged columns: Timestamp, the above fields, and a random `formSecret` per submission
+- **Honeypot protection** - Hidden field to deter basic bots
+- **Form validation** - Required field checks and date/time validation  
+- **File restrictions** - 10MB limit, specific file types only
+- **Email validation** - Individual sending with error tracking
+- **Quota monitoring** - Tracks daily email limits
+- **Input sanitization** - All form data is cleaned and validated
+
+## 📊 Data Tracking
+
+**Form Fields:**
+- Name, Email, Start/End Date & Time
+- Absence Type, Frontline Entry Confirmation
+- Reason, Description (optional)
+- File upload (optional)
+
+**Sheet Columns:**
+- Timestamp, all form fields, document link, form secret
+
+## 📁 File Structure
+
+```
+├── code-content.gs          # 🎯 Main deployment file (self-contained)
+├── index.html              # 📚 Original standalone form
+├── script.js               # 📚 Original JavaScript  
+├── styles.css              # 📚 Original CSS
+├── apps_script/            # 📚 Original Apps Script files
+│   ├── Code.gs             #     Backend only version
+│   ├── Index.html          #     Form template
+│   └── Success.html        #     Success page template
+├── README.md               # 📖 This documentation
+└── SETUP_GUIDE.md          # 📖 Detailed setup guide
+```
+
+## 🆘 Troubleshooting
+
+See `SETUP_GUIDE.md` for detailed troubleshooting steps including:
+- "Backend not configured" errors
+- Permission issues  
+- Email delivery problems
+- File upload failures
+
+## 🔧 Development
+
+The repository contains both the original modular files and the new self-contained version:
+
+- **Use `code-content.gs`** for new deployments (recommended)
+- **Keep original files** for reference and development
+- **All functionality preserved** in the embedded version
 
 

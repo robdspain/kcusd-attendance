@@ -1,91 +1,238 @@
-# Time Off Request Form Setup Guide
+# Time Off Request Form - Complete Setup Guide
 
-## Issue: "Backend not configured" Error
+## 🚀 Quick Setup (Recommended)
 
-The error occurs because the Apps Script Web App URL is not configured in the frontend code. Here's how to fix it:
+### Self-Contained Deployment
 
-## Step 1: Deploy the Apps Script
+The easiest way to deploy is using the complete `code-content.gs` file which contains everything embedded.
+
+## Step 1: Create Google Apps Script Project
 
 1. **Open Google Apps Script**:
    - Go to [script.google.com](https://script.google.com)
-   - Create a new project or open existing one
+   - Click "New Project"
 
-2. **Copy the Code.gs content**:
-   - Copy the contents of `apps_script/Code.gs` into your Apps Script project
-   - Copy the contents of `apps_script/Index.html` as a new HTML file named "Index"
-   - Copy the contents of `apps_script/Success.html` as a new HTML file named "Success"
+2. **Replace Code.gs Content**:
+   - Delete all existing code in `Code.gs`
+   - Copy the **entire contents** of `code-content.gs`
+   - Paste into `Code.gs`
 
-3. **Configure the settings**:
-   - Update the `CONFIG` object in `Code.gs`:
-     - `sheetId`: Your Google Sheet ID (create a new sheet if needed)
-     - `emailRecipients`: Add the correct email addresses
-     - `driveFolderId`: Your Google Drive folder ID for storing documents
+3. **No Additional Files Needed**:
+   - ❌ No HTML files required
+   - ❌ No external dependencies  
+   - ✅ Everything is embedded in one file
 
-4. **Deploy as Web App**:
+## Step 2: Configure Your Settings
+
+Update the `CONFIG` object at the top of the code:
+
+```javascript
+const CONFIG = {
+  sheetId: 'YOUR_GOOGLE_SHEET_ID',           // Required
+  sheetName: 'Responses',                    // Optional
+  emailRecipients: [                         // Required
+    'spain-r@kcusd.com',
+    'lopez-cr@kcusd.com', 
+    'muniz-d@kcusd.com',
+    'evaristo-a@kcusd.com',
+  ],
+  driveFolderId: 'YOUR_DRIVE_FOLDER_ID',     // Required for file uploads
+  driveFolderName: 'Time Off Request Documents',
+  maxUploadBytes: 10 * 1024 * 1024,          // 10MB limit
+  allowedMimeTypes: [                        // Supported file types
+    'application/pdf', 'image/png', 'image/jpeg', 'image/heic', 'image/heif'
+  ],
+};
+```
+
+## Step 3: Deploy as Web App
+
+1. **Save the Project**:
+   - Click "Save" or `Ctrl+S`
+   - Give your project a name
+
+2. **Deploy**:
    - Click "Deploy" → "New deployment"
    - Choose "Web app" as type
-   - Set "Execute as" to "Me"
-   - Set "Who has access" to "Anyone" (or "Anyone with Google Account" for restricted access)
+   - Set "Execute as" to **"Me"**
+   - Set "Who has access" to **"Anyone"**
    - Click "Deploy"
-   - **Copy the Web App URL** (you'll need this for the next step)
+   - **Copy the Web App URL**
 
-## Step 2: Update the Frontend Configuration
+### 1. Create Google Sheet
 
-1. **Update script.js**:
-   - Replace `YOUR_SCRIPT_ID` in the `APPS_SCRIPT_URL` with your actual Apps Script Web App URL
-   - The URL should look like: `https://script.google.com/macros/s/AKfycbz.../exec`
+1. **Create New Google Sheet**:
+   - Go to [sheets.google.com](https://sheets.google.com)
+   - Click "Blank" to create new sheet
 
-## Step 3: Verify Permissions
+2. **Get Sheet ID**:
+   - Copy the long string from the URL between `/d/` and `/edit`
+   - Example: `https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit`
 
-### Google Sheet Permissions:
-1. **Create or open your Google Sheet**
-2. **Share the sheet** with the email addresses in `emailRecipients`
-3. **Give them "Editor" access** so the script can write to the sheet
+3. **Share Sheet** (Important):
+   - Click "Share" button
+   - Add your email recipients as "Editor"
+   - This allows the script to write data
 
-### Google Drive Permissions:
-1. **Create a folder** for storing uploaded documents
-2. **Share the folder** with the email recipients
-3. **Update the `driveFolderId`** in the CONFIG object
+### 2. Create Google Drive Folder
 
-## Step 4: Test the Form
+1. **Create Folder**:
+   - Go to [drive.google.com](https://drive.google.com)
+   - Right-click → "New folder"
+   - Name it "Time Off Request Documents"
 
-1. **Open your HTML form** in a browser
-2. **Fill out the form** with test data
-3. **Submit the form**
-4. **Check for success**:
-   - You should see a success message with a random quote
-   - Check your Google Sheet for the new entry
-   - Check your email for the notification
+2. **Get Folder ID**:
+   - Open the folder
+   - Copy the ID from the URL after `/folders/`
+   - Example: `https://drive.google.com/drive/folders/YOUR_FOLDER_ID`
 
-## Troubleshooting
+3. **Share Folder**:
+   - Right-click folder → "Share"
+   - Add email recipients as "Editor"
 
-### Common Issues:
+## Step 5: Test the Complete Form
 
-1. **"Backend not configured"**:
-   - Make sure `APPS_SCRIPT_URL` is set correctly in `script.js`
-   - Verify the Apps Script is deployed as a Web App
+1. **Open your Web App URL** in a browser
+2. **Fill out test submission**:
+   - Complete all required fields  
+   - Upload a test file (optional)
+   - Check "I have filled out my Frontline entry"
+3. **Submit and verify**:
+   - Success page with inspirational quote appears
+   - New row appears in Google Sheet
+   - Email notifications sent to all recipients
+   - File uploaded to Google Drive (if included)
 
-2. **"Permission denied"**:
-   - Check that the Google Sheet is shared with the script's executing user
-   - Verify the Drive folder permissions
+---
 
-3. **"File upload failed"**:
-   - Check the Drive folder permissions
-   - Verify the file size is under 10MB
-   - Ensure the file type is supported
+## 🔧 Troubleshooting
 
-4. **"Email not sent"**:
-   - Check that the email addresses in `emailRecipients` are correct
-   - Verify the script has permission to send emails
+### Issue: "No HTML file named Index was found"
 
-### Security Considerations:
+**Cause**: Using old Apps Script code that looks for external HTML files.
 
-1. **API Key Protection**: The Apps Script URL is public, but the script validates submissions
-2. **File Upload Limits**: Files are limited to 10MB and specific types
-3. **Honeypot Protection**: The form includes spam protection
-4. **CORS Configuration**: The script is configured to handle cross-origin requests
+**Solution**: 
+- Replace **entire** `Code.gs` content with `code-content.gs`
+- The new version has everything embedded - no external HTML files needed
 
-## Configuration Reference
+### Issue: "Permission denied" 
+
+**Cause**: Google Sheet or Drive folder not properly shared.
+
+**Solutions**:
+- Share Google Sheet with your email as "Editor"
+- Share Google Drive folder with your email as "Editor"  
+- Make sure the IDs in CONFIG are correct
+
+### Issue: "Email not sent" or "Some emails failed"
+
+**Cause**: Email delivery issues or quota exceeded.
+
+**Solutions**:
+- Check Apps Script execution logs for detailed error messages
+- Verify all email addresses in `emailRecipients` are correct
+- Check daily email quota (100 emails/day for free accounts)
+- The new version sends emails individually for better reliability
+
+### Issue: "File upload failed"
+
+**Cause**: Drive folder permissions or file restrictions.
+
+**Solutions**:
+- Verify Drive folder is shared properly
+- Check file size (must be under 10MB)
+- Ensure file type is supported (PDF, PNG, JPG, HEIC)
+- Check Apps Script execution logs for specific error
+
+### Issue: Form styling looks wrong
+
+**Cause**: CSS not loading properly.
+
+**Solution**: 
+- Use `code-content.gs` which has all CSS embedded
+- No external CSS files needed
+
+## 🔍 Debugging
+
+### Check Apps Script Logs
+
+1. **Open Apps Script project**
+2. **Click "Executions"** in left sidebar  
+3. **View recent executions** for detailed error messages
+4. **Look for email status logs**:
+   - "Email sent successfully to: [email]"
+   - "Failed to send email to [email]: [error]"
+
+### Enhanced Logging Features
+
+The new `code-content.gs` includes enhanced logging:
+- ✅ Individual email delivery status
+- ✅ Email quota monitoring  
+- ✅ Invalid email address detection
+- ✅ File upload status tracking
+- ✅ Detailed error messages
+
+---
+
+## 📚 Alternative Setup: GitHub Pages + Apps Script Backend
+
+If you prefer to host the form separately and use Apps Script only as a backend:
+
+### 1. Setup GitHub Pages
+- Push this repository to GitHub
+- Enable GitHub Pages from Settings → Pages → Source: `main` branch
+
+### 2. Configure Backend
+- Use `apps_script/Code.gs` for backend-only deployment
+- Deploy as Web App (same steps as above)
+
+### 3. Connect Frontend
+- Update `APPS_SCRIPT_URL` in `script.js` with your Web App URL
+- Commit and push changes
+
+This approach separates the frontend and backend but requires more configuration.
+
+---
+
+## 🏗️ Architecture
+
+### Self-Contained Version (`code-content.gs`)
+```
+┌─────────────────────────────────────┐
+│           Google Apps Script        │
+│                                     │
+│  ┌─────────────┐ ┌─────────────┐   │
+│  │   Backend   │ │  Frontend   │   │
+│  │  Functions  │ │ HTML/CSS/JS │   │
+│  │             │ │  Embedded   │   │
+│  └─────────────┘ └─────────────┘   │
+│                                     │
+│  ↓ Writes to Google Sheet          │
+│  ↓ Sends emails                    │
+│  ↓ Stores files in Drive           │
+└─────────────────────────────────────┘
+```
+
+### Modular Version (Original)
+```
+┌─────────────────┐    ┌─────────────────┐
+│   GitHub Pages  │    │ Google Apps     │
+│                 │    │ Script          │
+│  Frontend       │───▶│                 │
+│  HTML/CSS/JS    │    │  Backend Only   │
+│                 │    │  Functions      │
+└─────────────────┘    └─────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────┐
+                    │ Google Services │
+                    │ • Sheets        │
+                    │ • Drive         │
+                    │ • Gmail         │
+                    └─────────────────┘
+```
+
+## 📋 Configuration Reference
 
 ### Required Google Sheet Columns:
 - Timestamp
