@@ -107,6 +107,30 @@ const FORMS = {
   }
 };
 
+const SUPERVISION_SCHEDULING = [
+  {
+    title: 'Rob — Individual RBT Supervision',
+    description: 'Book individual supervision with Rob.',
+    icon: '🧑‍🏫',
+    url: 'https://calendly.com/robspain/individual-rbt-supervision-clone',
+    color: 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)',
+  },
+  {
+    title: 'Rob — Individual BCBA/BCaBA Supervision',
+    description: 'Book individual BCBA or BCaBA supervision with Rob.',
+    icon: '📚',
+    url: 'https://calendly.com/robspain/individual-bcba-bcaba-supervision',
+    color: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
+  },
+  {
+    title: 'Cristal — RBT Supervision',
+    description: 'Book individual RBT supervision with Cristal.',
+    icon: '🗓️',
+    url: 'https://calendly.com/cristal01',
+    color: 'linear-gradient(135deg, #ec4899 0%, #be185d 100%)',
+  },
+];
+
 function doGet(e) {
   const formType = (e && e.parameter && e.parameter.form) ? e.parameter.form : 'landing';
   
@@ -213,6 +237,24 @@ ${getSharedStyles()}
   gap: 24px;
   max-width: 800px;
   margin: 0 auto;
+}
+
+.dashboard-section {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto 48px;
+}
+
+.dashboard-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-title {
+  color: var(--text-outside);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 16px;
+  text-align: center;
 }
 
 .form-card {
@@ -324,9 +366,19 @@ ${getSharedStyles()}
       <p>Select the form you need to complete. All submissions are automatically logged and email notifications are sent to the appropriate team members.</p>
     </div>
     
-    <div class="cards-grid">
-      ${generateFormCards()}
-    </div>
+    <section class="dashboard-section" aria-labelledby="forms-heading">
+      <h2 id="forms-heading" class="section-title">Team Forms</h2>
+      <div class="cards-grid">
+        ${generateFormCards()}
+      </div>
+    </section>
+
+    <section class="dashboard-section" aria-labelledby="supervision-heading">
+      <h2 id="supervision-heading" class="section-title">Supervision Scheduling</h2>
+      <div class="cards-grid">
+        ${generateSupervisionCards()}
+      </div>
+    </section>
   </div>
 
   <script>
@@ -363,6 +415,21 @@ function generateFormCards() {
   }
   
   return cardsHtml;
+}
+
+function generateSupervisionCards() {
+  return SUPERVISION_SCHEDULING.map((appointment) => `
+    <a class="form-card"
+       href="${appointment.url}"
+       target="_top"
+       rel="noopener noreferrer"
+       style="--card-gradient: ${appointment.color}">
+      <div class="card-status available">Schedule</div>
+      <div class="card-icon">${appointment.icon}</div>
+      <h3 class="card-title">${appointment.title}</h3>
+      <p class="card-description">${appointment.description}</p>
+    </a>
+  `).join('');
 }
 
 // ======== TIME OFF FORM MODULE ========
@@ -481,16 +548,29 @@ function handleTimeOffSubmission(e) {
     'Access-Control-Allow-Headers': 'Content-Type',
   };
 
-  if (!e || !e.parameter) {
-    return json({ success: false, message: 'No data' }, headers);
+  const result = submitTimeOffForm(e && e.parameter, e && e.files && e.files['doctorNote']);
+
+  if (e && e.parameter && e.parameter.__embedded && result.success) {
+    return HtmlService.createHtmlOutput(getSuccessHtml('Time Off Request'))
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   }
+
+  return json(result, headers);
+}
+
+// Called from the HTML-service form through google.script.run. Passing the form
+// element to Apps Script converts its file input into a Blob automatically.
+function submitTimeOffForm(form, uploadedFile) {
+  if (!form) {
+    return { success: false, message: 'No form data received' };
+  }
+  uploadedFile = uploadedFile || form.doctorNote;
 
   // Honeypot check
-  if (e.parameter.website) {
-    return json({ success: true, message: 'Ignored' }, headers);
+  if (form.website) {
+    return { success: true, message: 'Ignored' };
   }
 
-  const form = e.parameter;
   const formConfig = FORMS['time-off'];
   
   // Validate required fields
@@ -507,7 +587,7 @@ function handleTimeOffSubmission(e) {
   const formSecret = (form.formSecret || '').trim();
 
   if (!name || !email || !startDate || !startTime || !endDate || !endTime || !absenceType || form.frontlineEntry !== 'on' || !reason) {
-    return json({ success: false, message: 'Missing required fields' }, headers);
+    return { success: false, message: 'Missing required fields' };
   }
 
   const sheet = getOrCreateSheet(SHARED_CONFIG.sheetId, formConfig.sheetName);
@@ -516,22 +596,22 @@ function handleTimeOffSubmission(e) {
   // Handle file upload
   let fileLink = '';
   let attachmentBlob = null;
-  if (e && e.files && e.files['doctorNote']) {
-    const file = e.files['doctorNote'];
+  if (uploadedFile) {
+    const file = uploadedFile;
     const sizeBytes = (file && file.getBytes) ? file.getBytes().length : 0;
     const contentType = (file && file.getContentType) ? file.getContentType() : '';
     
     // Check for empty file
     if (sizeBytes === 0) {
-      return json({ success: false, message: 'Cannot upload empty file' }, headers);
+      return { success: false, message: 'Cannot upload empty file' };
     }
     
     if (sizeBytes > SHARED_CONFIG.maxUploadBytes) {
-      return json({ success: false, message: 'File too large (max 10MB)' }, headers);
+      return { success: false, message: 'File too large (max 10MB)' };
     }
     
     if (!contentType || SHARED_CONFIG.allowedMimeTypes.indexOf(contentType) === -1) {
-      return json({ success: false, message: 'Unsupported file type. Please upload PDF, PNG, JPG, or HEIC files.' }, headers);
+      return { success: false, message: 'Unsupported file type. Please upload PDF, PNG, JPG, or HEIC files.' };
     }
     
     attachmentBlob = file;
@@ -541,7 +621,7 @@ function handleTimeOffSubmission(e) {
       fileLink = driveFile.getUrl();
     } catch (error) {
       console.error('Error saving file to Drive:', error);
-      return json({ success: false, message: 'Failed to save file to Drive: ' + error.message }, headers);
+      return { success: false, message: 'Failed to save file to Drive: ' + error.message };
     }
   }
 
@@ -573,13 +653,7 @@ function handleTimeOffSubmission(e) {
     timestamp
   });
 
-  // Redirect to success page
-  if (e && e.parameter && e.parameter.__embedded) {
-    const success = HtmlService.createHtmlOutput(getSuccessHtml('Time Off Request')).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-    return success;
-  }
-
-  return json({ success: true }, headers);
+  return { success: true };
 }
 
 // ======== SHARED UTILITIES ========
@@ -1148,16 +1222,26 @@ function handleStudentAbsenceSubmission(e) {
     'Access-Control-Allow-Headers': 'Content-Type',
   };
 
-  if (!e || !e.parameter) {
-    return json({ success: false, message: 'No data' }, headers);
+  const result = submitStudentAbsenceForm(e && e.parameter);
+
+  if (e && e.parameter && e.parameter.__embedded && result.success) {
+    return HtmlService.createHtmlOutput(getSuccessHtml('Student Absence Report'))
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  }
+
+  return json(result, headers);
+}
+
+function submitStudentAbsenceForm(form) {
+  if (!form) {
+    return { success: false, message: 'No form data received' };
   }
 
   // Honeypot check
-  if (e.parameter.website) {
-    return json({ success: true, message: 'Ignored' }, headers);
+  if (form.website) {
+    return { success: true, message: 'Ignored' };
   }
 
-  const form = e.parameter;
   const formConfig = FORMS['student-absence'];
   
   // Validate required fields
@@ -1171,7 +1255,7 @@ function handleStudentAbsenceSubmission(e) {
   const formSecret = (form.formSecret || '').trim();
 
   if (!studentName || !startDate || !startTime || !endDate || !endTime || !reason) {
-    return json({ success: false, message: 'Missing required fields' }, headers);
+    return { success: false, message: 'Missing required fields' };
   }
 
   const sheet = getOrCreateSheet(SHARED_CONFIG.sheetId, formConfig.sheetName);
@@ -1200,13 +1284,7 @@ function handleStudentAbsenceSubmission(e) {
     timestamp
   });
 
-  // Redirect to success page
-  if (e && e.parameter && e.parameter.__embedded) {
-    const success = HtmlService.createHtmlOutput(getSuccessHtml('Student Absence Report')).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-    return success;
-  }
-
-  return json({ success: true }, headers);
+  return { success: true };
 }
 
 function sendStudentAbsenceEmails({ type, recipients, data, timestamp }) {
@@ -1457,16 +1535,26 @@ function handleFieldTripSupportSubmission(e) {
     'Access-Control-Allow-Headers': 'Content-Type',
   };
 
-  if (!e || !e.parameter) {
-    return json({ success: false, message: 'No data' }, headers);
+  const result = submitFieldTripSupportForm(e && e.parameter);
+
+  if (e && e.parameter && e.parameter.__embedded && result.success) {
+    return HtmlService.createHtmlOutput(getSuccessHtml('Field Trip Support Request'))
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  }
+
+  return json(result, headers);
+}
+
+function submitFieldTripSupportForm(form) {
+  if (!form) {
+    return { success: false, message: 'No form data received' };
   }
 
   // Honeypot check
-  if (e.parameter.website) {
-    return json({ success: true, message: 'Ignored' }, headers);
+  if (form.website) {
+    return { success: true, message: 'Ignored' };
   }
 
-  const form = e.parameter;
   const formConfig = FORMS['field-trip-support'];
   
   // Validate required fields
@@ -1482,7 +1570,7 @@ function handleFieldTripSupportSubmission(e) {
   const formSecret = (form.formSecret || '').trim();
 
   if (!studentName || !currentSupportTimes || !fieldTripDate || !startTime || !endTime || !natureOfTrip || !location || !parentsAttending || !staffCount) {
-    return json({ success: false, message: 'Missing required fields' }, headers);
+    return { success: false, message: 'Missing required fields' };
   }
 
   const sheet = getOrCreateSheet(SHARED_CONFIG.sheetId, formConfig.sheetName);
@@ -1513,13 +1601,7 @@ function handleFieldTripSupportSubmission(e) {
     timestamp
   });
 
-  // Redirect to success page
-  if (e && e.parameter && e.parameter.__embedded) {
-    const success = HtmlService.createHtmlOutput(getSuccessHtml('Field Trip Support Request')).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-    return success;
-  }
-
-  return json({ success: true }, headers);
+  return { success: true };
 }
 
 function sendFieldTripSupportEmails({ type, recipients, data, timestamp }) {
@@ -1668,9 +1750,22 @@ function getFieldTripSupportFormScript() {
       submitBtn.disabled = true;
       setStatus('Submitting…');
 
-      // Form submits to the Apps Script URL automatically
-      // The form will redirect to success page on successful submission
-      
+      google.script.run
+        .withSuccessHandler((result) => {
+          if (!result || !result.success) {
+            setStatus((result && result.message) || 'Submission failed. Please try again.', 'error');
+            submitBtn.disabled = false;
+            return;
+          }
+          form.reset();
+          setStatus('Submitted successfully. Your request has been logged.', 'success');
+          submitBtn.disabled = false;
+        })
+        .withFailureHandler((err) => {
+          setStatus('Submission failed: ' + (err.message || err), 'error');
+          submitBtn.disabled = false;
+        })
+        .submitFieldTripSupportForm(form);
     } catch (err) {
       setStatus(\`Submission failed: \${err.message}\`, 'error');
       submitBtn.disabled = false;
@@ -1782,9 +1877,22 @@ function getStudentAbsenceFormScript() {
       submitBtn.disabled = true;
       setStatus('Submitting…');
 
-      // Form submits to the Apps Script URL automatically
-      // The form will redirect to success page on successful submission
-      
+      google.script.run
+        .withSuccessHandler((result) => {
+          if (!result || !result.success) {
+            setStatus((result && result.message) || 'Submission failed. Please try again.', 'error');
+            submitBtn.disabled = false;
+            return;
+          }
+          form.reset();
+          setStatus('Submitted successfully. Your report has been logged.', 'success');
+          submitBtn.disabled = false;
+        })
+        .withFailureHandler((err) => {
+          setStatus('Submission failed: ' + (err.message || err), 'error');
+          submitBtn.disabled = false;
+        })
+        .submitStudentAbsenceForm(form);
     } catch (err) {
       setStatus(\`Submission failed: \${err.message}\`, 'error');
       submitBtn.disabled = false;
@@ -2027,9 +2135,22 @@ function getTimeOffFormScript() {
       submitBtn.disabled = true;
       setStatus('Submitting…');
 
-      // Form submits to the Apps Script URL automatically
-      // The form will redirect to success page on successful submission
-      
+      google.script.run
+        .withSuccessHandler((result) => {
+          if (!result || !result.success) {
+            setStatus((result && result.message) || 'Submission failed. Please try again.', 'error');
+            submitBtn.disabled = false;
+            return;
+          }
+          form.reset();
+          setStatus('Submitted successfully. Your request has been logged.', 'success');
+          submitBtn.disabled = false;
+        })
+        .withFailureHandler((err) => {
+          setStatus('Submission failed: ' + (err.message || err), 'error');
+          submitBtn.disabled = false;
+        })
+        .submitTimeOffForm(form);
     } catch (err) {
       setStatus(\`Submission failed: \${err.message}\`, 'error');
       submitBtn.disabled = false;
