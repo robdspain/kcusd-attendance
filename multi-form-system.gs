@@ -750,7 +750,9 @@ function saveFileToDrive(fileBlob, submitterName, timestamp) {
   const fileName = `${dateStr}_${submitterName}_${baseName}${extension}`;
   
   const driveFile = folder.createFile(fileBlob.setName(fileName));
-  driveFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  // Keep medical documentation inside the folder's existing KCUSD sharing
+  // policy. Domain administrators may reject public-link sharing, which used
+  // to make an otherwise valid submission look like an upload failure.
   
   return driveFile;
 }
